@@ -66,6 +66,8 @@ export type GitDiffViewerItem = {
   displayPath?: string;
   status: string;
   diff: string;
+  stagedDiff?: string | null;
+  unstagedDiff?: string | null;
   isImage?: boolean;
   oldImageData?: string | null;
   newImageData?: string | null;
