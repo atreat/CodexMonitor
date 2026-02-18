@@ -172,6 +172,7 @@ export function buildGitNodes(options: LayoutNodesOptions): GitLayoutNodes {
       scrollRequestId={options.diffScrollRequestId}
       isLoading={options.gitDiffLoading}
       error={options.gitDiffError}
+      diffSource={options.diffSource}
       diffStyle={resolveGitDiffStyle({
         isPhone: options.isPhone,
         splitChatDiffView: options.splitChatDiffView,
@@ -190,6 +191,9 @@ export function buildGitNodes(options: LayoutNodesOptions): GitLayoutNodes {
       onCheckoutPullRequest={options.onCheckoutPullRequest}
       canRevert={options.diffSource === "local"}
       onRevertFile={options.onRevertGitFile}
+      stagedPaths={options.gitStatus.stagedFiles.map((file) => file.path)}
+      unstagedPaths={options.gitStatus.unstagedFiles.map((file) => file.path)}
+      onStageSelection={options.onStageGitSelection}
       onActivePathChange={options.onDiffActivePathChange}
       onInsertComposerText={
         options.canInsertComposerText ? options.onInsertComposerText : undefined
