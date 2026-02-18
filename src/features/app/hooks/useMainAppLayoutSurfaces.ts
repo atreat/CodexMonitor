@@ -839,6 +839,7 @@ export function useMainAppLayoutSurfaces({
         scrollRequestId: gitState.diffScrollRequestId,
         isLoading: gitState.activeDiffLoading,
         error: gitState.activeDiffError,
+        diffSource: gitState.diffSource,
         ignoreWhitespaceChanges:
           appSettings.gitDiffIgnoreWhitespaceChanges && gitState.diffSource !== "pr",
         pullRequest: gitState.diffSource === "pr" ? gitState.selectedPullRequest : null,
@@ -854,6 +855,9 @@ export function useMainAppLayoutSurfaces({
           gitState.handleCheckoutPullRequest(pullRequest.number),
         canRevert: gitState.diffSource === "local",
         onRevertFile: gitState.handleRevertGitFile,
+        stagedPaths: gitState.gitStatus.stagedFiles.map((file) => file.path),
+        unstagedPaths: gitState.gitStatus.unstagedFiles.map((file) => file.path),
+        onStageSelection: gitState.handleStageGitSelection,
         onActivePathChange: gitState.handleActiveDiffPath,
         onInsertComposerText: composerWorkspaceState.canInsertComposerText
           ? composerWorkspaceState.handleInsertComposerText
