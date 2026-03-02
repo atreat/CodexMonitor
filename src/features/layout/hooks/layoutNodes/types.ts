@@ -17,6 +17,8 @@ import type {
   DictationSessionState,
   DictationTranscript,
   GitFileStatus,
+  GitSelectionApplyResult,
+  GitSelectionLine,
   GitHubIssue,
   GitHubPullRequestComment,
   GitHubPullRequest,
@@ -64,6 +66,8 @@ export type GitDiffViewerItem = {
   displayPath?: string;
   status: string;
   diff: string;
+  stagedDiff?: string | null;
+  unstagedDiff?: string | null;
   isImage?: boolean;
   oldImageData?: string | null;
   newImageData?: string | null;
@@ -330,6 +334,12 @@ export type LayoutNodesOptions = {
   initGitRepoLoading: boolean;
   onStageGitAll: () => Promise<void>;
   onStageGitFile: (path: string) => Promise<void>;
+  onStageGitSelection: (options: {
+    path: string;
+    op: "stage" | "unstage";
+    source: "unstaged" | "staged";
+    lines: GitSelectionLine[];
+  }) => Promise<GitSelectionApplyResult | null>;
   onUnstageGitFile: (path: string) => Promise<void>;
   onRevertGitFile: (path: string) => Promise<void>;
   onRevertAllGitChanges: () => Promise<void>;
