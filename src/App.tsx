@@ -7,6 +7,7 @@ import "./styles/ds-toast.css";
 import "./styles/ds-panel.css";
 import "./styles/ds-diff.css";
 import "./styles/ds-popover.css";
+import "./styles/ds-tooltip.css";
 import "./styles/buttons.css";
 import "./styles/sidebar.css";
 import "./styles/home.css";
@@ -2213,11 +2214,13 @@ function MainApp() {
         {showCompactCodexThreadActions ? (
           <button
             type="button"
-            className="ghost main-header-action"
+            className="ghost main-header-action ds-tooltip-trigger"
             onClick={handleMobileThreadRefresh}
             data-tauri-drag-region="false"
             aria-label="Refresh current thread from server"
             title="Refresh current thread from server"
+            data-tooltip="Refresh current thread from server"
+            data-tooltip-placement="bottom"
             disabled={mobileThreadRefreshLoading}
           >
             <RefreshCw

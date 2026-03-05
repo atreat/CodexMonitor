@@ -344,6 +344,8 @@ export async function openWorkspaceIn(
     appName?: string | null;
     command?: string | null;
     args?: string[];
+    line?: number | null;
+    column?: number | null;
   },
 ): Promise<void> {
   return invoke("open_workspace_in", {
@@ -351,6 +353,8 @@ export async function openWorkspaceIn(
     app: options.appName ?? null,
     command: options.command ?? null,
     args: options.args ?? [],
+    line: options.line ?? null,
+    column: options.column ?? null,
   });
 }
 
