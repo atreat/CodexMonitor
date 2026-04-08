@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import * as notification from "@tauri-apps/plugin-notification";
 import {
+  applyGitDisplayHunk,
   exportMarkdownFile,
   addWorkspace,
   compactThread,
@@ -18,12 +19,14 @@ import {
   getOpenAppIcon,
   listThreads,
   listMcpServerStatus,
+  readThread,
   readGlobalAgentsMd,
   readGlobalCodexConfigToml,
   listWorkspaces,
   openWorkspaceIn,
   readAgentMd,
   stageGitAll,
+  stageGitSelection,
   respondToServerRequest,
   respondToUserInputRequest,
   sendUserMessage,
@@ -40,6 +43,7 @@ import {
   tailscaleDaemonStatus,
   tailscaleDaemonStop,
   tailscaleStatus,
+  pickImageFiles,
   pickWorkspacePaths,
   writeGlobalAgentsMd,
   writeGlobalCodexConfigToml,
@@ -118,6 +122,37 @@ describe("tauri invoke wrappers", () => {
     await expect(pickWorkspacePaths()).resolves.toEqual(["/tmp/one", "/tmp/two"]);
   });
 
+  it("includes heic and heif in the image picker filter", async () => {
+    const openMock = vi.mocked(open);
+    openMock.mockResolvedValueOnce(["/tmp/photo.heic", "/tmp/photo.heif"]);
+
+    await expect(pickImageFiles()).resolves.toEqual([
+      "/tmp/photo.heic",
+      "/tmp/photo.heif",
+    ]);
+
+    expect(openMock).toHaveBeenCalledWith({
+      multiple: true,
+      filters: [
+        {
+          name: "Images",
+          extensions: [
+            "png",
+            "jpg",
+            "jpeg",
+            "gif",
+            "webp",
+            "bmp",
+            "tiff",
+            "tif",
+            "heic",
+            "heif",
+          ],
+        },
+      ],
+    });
+  });
+
   it("returns null when markdown export is cancelled", async () => {
     const saveMock = vi.mocked(save);
     const invokeMock = vi.mocked(invoke);
@@ -163,6 +198,56 @@ describe("tauri invoke wrappers", () => {
 
     expect(invokeMock).toHaveBeenCalledWith("get_git_status", {
       workspaceId: "ws-1",
+    });
+  });
+
+  it("maps args for stage_git_selection", async () => {
+    const invokeMock = vi.mocked(invoke);
+    invokeMock.mockResolvedValueOnce({
+      applied: true,
+      appliedLineCount: 1,
+      warning: null,
+    });
+
+    await stageGitSelection("ws-1", "src/main.ts", "stage", "unstaged", [
+      {
+        type: "add",
+        oldLine: null,
+        newLine: 7,
+        text: "const x = 1;",
+      },
+    ]);
+
+    expect(invokeMock).toHaveBeenCalledWith("stage_git_selection", {
+      workspaceId: "ws-1",
+      path: "src/main.ts",
+      op: "stage",
+      source: "unstaged",
+      lines: [
+        {
+          type: "add",
+          oldLine: null,
+          newLine: 7,
+          text: "const x = 1;",
+        },
+      ],
+    });
+  });
+
+  it("maps args for apply_git_display_hunk", async () => {
+    const invokeMock = vi.mocked(invoke);
+    invokeMock.mockResolvedValueOnce({
+      applied: true,
+      appliedLineCount: 2,
+      warning: null,
+    });
+
+    await applyGitDisplayHunk("ws-1", "src/main.ts", "unstaged:1:0:2:1");
+
+    expect(invokeMock).toHaveBeenCalledWith("apply_git_display_hunk", {
+      workspaceId: "ws-1",
+      path: "src/main.ts",
+      displayHunkId: "unstaged:1:0:2:1",
     });
   });
 
@@ -282,6 +367,18 @@ describe("tauri invoke wrappers", () => {
       cursor: "cursor-1",
       limit: 25,
       sortKey: "updated_at",
+    });
+  });
+
+  it("maps workspaceId/threadId for read_thread", async () => {
+    const invokeMock = vi.mocked(invoke);
+    invokeMock.mockResolvedValueOnce({});
+
+    await readThread("ws-10", "thread-1");
+
+    expect(invokeMock).toHaveBeenCalledWith("read_thread", {
+      workspaceId: "ws-10",
+      threadId: "thread-1",
     });
   });
 
